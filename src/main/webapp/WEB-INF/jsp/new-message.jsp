@@ -1,7 +1,9 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title>New Topic</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
@@ -24,14 +26,16 @@
                 <div class="card-body">
                     <form>
                         <div class="form-group">
-                            <label for="title">Name:</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                            <label for="title">Tiêu đề:</label>
+                            <input type="text" class="form-control" id="title" name="title" required value="${title}">
+                            <input type="hidden"  id="id" name="id" required value="${id}">
                         </div>
                         <div class="form-group">
-                            <%--@declare id="contentmsg"--%><label for="contentmsg">Content:</label>
+                            <%--@declare id="contentmsg"--%><label for="contentmsg">Nội <dung></dung>:</label>
                             <textarea class="form-control" id="contentmsg" name="contentmsg" rows="3" required></textarea>
                         </div>
-                        <button type="button" class="btn btn-primary" id="submit-btn">Submit</button>
+                        <button type="button" class="btn btn-primary" id="submit-btn">Gửi</button>
+                        <button type="button" class="btn btn-primary" onclick="history.back()">Trở về</button>
                     </form>
                     <div id="result"></div>
                 </div>
@@ -44,14 +48,15 @@
     $(document).ready(function() {
         $("#submit-btn").click(function() {
             $.ajax({
-                url: "/api/create-topic",
+                url: "/api/reply-topic",
                 type: "POST",
                 data: {
                     title: $("#title").val(),
-                    contentmsg: $("#contentmsg").val()
+                    contentmsg: $("#contentmsg").val(),
+                    idTopic: $("#id").val()
                 },
                 success: function(response) {
-                    console.log(response)
+                    window.location.href = `/detail-topic?id=` + response.topic.id; // Redirect to home page
                 }
             });
         });

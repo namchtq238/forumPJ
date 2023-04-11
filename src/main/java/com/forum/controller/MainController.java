@@ -1,6 +1,7 @@
 package com.forum.controller;
 
 import com.forum.model.Category;
+import com.forum.model.Message;
 import com.forum.model.Topic;
 import com.forum.model.User;
 import com.forum.service.ForumService;
@@ -12,10 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
 public class MainController {
+    private HttpServletRequest request;
+
     private ForumService forumService;
 
     @GetMapping("/login")
@@ -34,18 +38,9 @@ public class MainController {
         }
         return ResponseEntity.badRequest().build();
     }
-    @GetMapping("/test")
-    public String test(HttpSession session){
-        User user = (User) session.getAttribute("user");
-        if (user == null){
-            return "redirect:/login";
-        }
-        return "pro";
-    }
-
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    public String logout() {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
@@ -55,6 +50,7 @@ public class MainController {
 
     @GetMapping("/home")
     public String listTopic(Model model){
+        if (!isUserLoggedIn()) return "redirect:/login";
         Category category = forumService.getCategory();
         model.addAttribute("category", category);
         return "list-topic";
@@ -64,27 +60,50 @@ public class MainController {
     public ResponseEntity<?> handleShowTopic(){
         return ResponseEntity.ok(forumService.getListTopic());
     }
-    @GetMapping("/api/detail")
+    @GetMapping("/api/detail-topic")
     @ResponseBody
-    public ResponseEntity<?> handleGetDetail(@RequestBody Long id){
-        return ResponseEntity.ok(forumService.getMessageOfTopic(id));
+    public ResponseEntity<?> handleGetDetail(@RequestParam Long id){
+        return ResponseEntity.ok(forumService.getMessageOfTopic(id) );
     }
     @GetMapping("/detail-topic")
     public String detail(@RequestParam Long id, Model model){
+        if (!isUserLoggedIn()) return "redirect:/login";
         Topic topic = forumService.getTopicByID(id);
+        List<Message> messsage = forumService.getMessageOfTopic(id);
         model.addAttribute("topic", topic);
+        model.addAttribute("repCount", messsage.size());
+        model.addAttribute("topMessage", messsage.get(0));
         return "detail-topic";
+    }
+    @GetMapping("/create-topic")
+    public String createTopic(){
+        if (!isUserLoggedIn()) return "redirect:/login";
+        return "new-topic";
+    }
+    @GetMapping("/reply-topic")
+    public String replyTopic(Model model, @RequestParam Long id){
+        if (!isUserLoggedIn()) return "redirect:/login";
+        Topic topic = forumService.getTopicByID(id);
+        model.addAttribute("title", "RE: " + topic.getTitle());
+        model.addAttribute("id", topic.getId());
+        return "new-message";
     }
     @PostMapping("/api/create-topic")
     @ResponseBody
-    public ResponseEntity<?> handleCreatetopic(@RequestBody Topic topic, HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        User user = (User) session.getAttribute("user");
-        return ResponseEntity.accepted().body(forumService.createNewTopic(topic, user));
+    public ResponseEntity<?> handleCreateTopic(@RequestParam String title,@RequestParam String contentmsg){
+        return ResponseEntity.accepted().body(forumService.createNewTopic(title, contentmsg, getUser()));
+    }
+    @PostMapping("/api/reply-topic")
+    @ResponseBody
+    public ResponseEntity<?> handleReplyTopic(@RequestParam String title,@RequestParam String contentmsg, @RequestParam Long idTopic){
+        return ResponseEntity.accepted().body(forumService.replyTopic(title, contentmsg, getUser(), idTopic));
     }
 
-
-    private boolean isUserLoggedIn(HttpServletRequest request){
+    private boolean isUserLoggedIn(){
         return request.getSession(false).getAttribute("user") != null;
     }
+    private User getUser(){
+        return (User) request.getSession(false).getAttribute("user");
+    }
+
 }
