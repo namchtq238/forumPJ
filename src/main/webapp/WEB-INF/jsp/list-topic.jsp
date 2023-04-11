@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Topic</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -18,49 +18,51 @@
 
     <!-- Display the title of the topic using EL -->
     <h2>${category.title}</h2>
-    <table >
-        <thead>
+
+    <form style="display: inline" action="${pageContext.request.contextPath}/create-topic" method="get">
+        <button>Gửi bài mới</button>
+    </form>
+
+    <table class="table table-striped table-bordered" id="threadTable">
+        <thead class="thead-dark">
         <tr>
             <td>Chủ đề</td>
             <td>Hồi âm</td>
-            <td></td>
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="item" items="${buongList}">
-            <tr>
-                <td>${item.ten}</td>
-                <td>${item.sucChua}</td>
-            </tr>
-        </c:forEach>
         </tbody>
     </table>
-
 </div>
 </body>
 <script>
+    const basePath = ${pageContext.request.contextPath}
     $(document).ready(function() {
-        // AJAX call to retrieve data
         $.ajax({
-            url: "/api/show-topic",
+            url: "/api/list-topic",
             type: "GET",
+            dataType: "json",
             success: function(data) {
-                var tableBody = $("#my-table tbody");
-
-                // Clear any existing rows from the table
-                tableBody.empty();
-
-                // Loop through the data and create a row for each item
-                $.each(data, function(index, item) {
-                    var row = $("<tr>");
-                    row.append($("<td>").text(item.column1));
-                    row.append($("<td>").text(item.column2));
-                    tableBody.append(row);
-                });            },
-            error: function() {
-                console.log("Error retrieving data");
+                var tableBody = "";
+                for (var i = 0; i < data.length; i++) {
+                    tableBody += "<tr>";
+                    tableBody += "<td>";
+                    tableBody += "<h4><a href='" + basePath + "/api/detail?id=" + data[i].id + "'>" + data[i].name + "</a></h4>";
+                    tableBody += "<p>Created by: " + data[i].user + "</p>";
+                    tableBody += "<p>Created on: " + data[i].date + "</p>";
+                    tableBody += "</td>";
+                    tableBody += "<td>";
+                    tableBody += "<p>" + data[i].replies + " Replies</p>";
+                    tableBody += "</td>";
+                    tableBody += "</tr>";
+                }
+                $("#threadTable tbody").html(tableBody);
+            },
+            fail: function(){
+                alert("fail to load data")
             }
         });
     });
 </script>
+
 </html>

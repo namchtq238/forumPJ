@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 @Getter
@@ -18,7 +19,7 @@ import java.util.Calendar;
 public abstract class Entry {
 	private String title;
 	private String content;
-	private Calendar createdTime;
+	private LocalDateTime createdTime;
 	@ManyToOne
 	@JoinColumn(name = "creator_id")
 	private User creator;

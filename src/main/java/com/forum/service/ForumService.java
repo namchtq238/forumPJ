@@ -11,8 +11,12 @@ import com.forum.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +40,25 @@ public class ForumService {
         return categoryRepository.findFirstBy();
     }
 
-    public List<Topic> getListTopic(Category category) {
-        return topicRepository.findAllByCategory(category); // get the first message or null
+    public List<Topic> getListTopic() {
+        return topicRepository.findAllByCategory(getCategory()); // get the first message or null
+    }
+    public Topic getTopicByID(Long id){
+        return getTopic(id);
+    }
+    private Topic getTopic(Long id){
+        Optional<Topic> opt = topicRepository.findById(id);
+        return opt.orElse(null);
+    }
+    public List<Message> getMessageOfTopic(Long idTopic){
+        Topic topic = getTopic(idTopic);
+        return messageRepository.findMessageByTopicOrderByCreatedTimeAsc(topic);
+    }
+
+    public Topic createNewTopic(Topic topic, User user) {
+        topic.setCreator(user);
+        topic.setCreatedTime(LocalDateTime.now());
+        topic.setCategory(this.getCategory());
+        return topicRepository.save(topic);
     }
 }

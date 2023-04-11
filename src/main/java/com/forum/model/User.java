@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class User {
 	private String username;
 	private String password;
 	private String email;
-	private Date joinDate;
+	private LocalDateTime joinDate;
 
 	@Override
 	public boolean equals(Object o) {

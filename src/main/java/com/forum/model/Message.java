@@ -20,4 +20,7 @@ public class Message extends Entry {
     private Long id;
 
     private Date time;
+
+    @ManyToOne
+    private Topic topic;
 }
