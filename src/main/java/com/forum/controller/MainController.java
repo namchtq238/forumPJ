@@ -71,7 +71,7 @@ public class MainController {
         List<Message> messsage = forumService.getMessageOfTopic(id);
         model.addAttribute("topic", topic);
         model.addAttribute("repCount", messsage.size());
-        model.addAttribute("topMessage", messsage.get(0));
+        model.addAttribute("topMessage", messsage.size() > 0 ?  messsage.get(0) : null);
         return "detail-topic";
     }
     @GetMapping("/create-topic")

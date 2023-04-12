@@ -22,7 +22,7 @@
 <div class="container">
     <div>
         <h3>Chủ đề: ${topic.title}</h3>
-        <p>Bài mới nhất do ${topMessage.creator.username} gửi lúc ${topMessage.createdTime}. ${repCount} hồi âm</p>
+        ${topMessage != null ? '<p>Bài mới nhất do \'' + topMessage.creator.username + '\' gửi lúc ' + topMessage.createdTime + '. ' + repCount + ' hồi âm</p>' : '<p></p>'}
         <a href="/home">Danh sách chủ đề</a>
     </div>
     <div id="main-title">
@@ -48,7 +48,7 @@
                             </div>
                         </div>
                         <hr>
-                        <p>${topic.title}</p>
+                        <p>${topic.content}</p>
                     </div>
                 </div>
             </div>
