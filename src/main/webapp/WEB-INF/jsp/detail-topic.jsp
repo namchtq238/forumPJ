@@ -22,7 +22,11 @@
 <div class="container">
     <div>
         <h3>Chủ đề: ${topic.title}</h3>
-        ${topMessage != null ? '<p>Bài mới nhất do \'' + topMessage.creator.username + '\' gửi lúc ' + topMessage.createdTime + '. ' + repCount + ' hồi âm</p>' : '<p></p>'}
+        <c:if test="${not empty topMessage}">
+            <p>Bài mới nhất do  ${topMessage.creator.username}  gửi lúc  ${topMessage.createdTime}.
+                ${repCount}  hồi âm</p>
+        </c:if>
+
         <a href="/home">Danh sách chủ đề</a>
     </div>
     <div id="main-title">
