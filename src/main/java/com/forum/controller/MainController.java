@@ -18,7 +18,6 @@ import java.util.List;
 @Controller
 @AllArgsConstructor
 public class MainController {
-    private HttpServletRequest request;
 
     private ForumService forumService;
 
@@ -40,7 +39,7 @@ public class MainController {
     }
 
     @PostMapping("/logout")
-    public String logout() {
+    public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
@@ -49,8 +48,8 @@ public class MainController {
     }
 
     @GetMapping("/home")
-    public String listTopic(Model model){
-        if (!isUserLoggedIn()) return "redirect:/login";
+    public String listTopic(Model model, HttpServletRequest request){
+        if (!isUserLoggedIn(request)) return "redirect:/login";
         Category category = forumService.getCategory();
         model.addAttribute("category", category);
         return "list-topic";
@@ -66,8 +65,8 @@ public class MainController {
         return ResponseEntity.ok(forumService.getMessageOfTopic(id) );
     }
     @GetMapping("/detail-topic")
-    public String detail(@RequestParam Long id, Model model){
-        if (!isUserLoggedIn()) return "redirect:/login";
+    public String detail(@RequestParam Long id, Model model, HttpServletRequest request){
+        if (!isUserLoggedIn(request)) return "redirect:/login";
         Topic topic = forumService.getTopicByID(id);
         List<Message> messsage = forumService.getMessageOfTopic(id);
         model.addAttribute("topic", topic);
@@ -76,13 +75,13 @@ public class MainController {
         return "detail-topic";
     }
     @GetMapping("/create-topic")
-    public String createTopic(){
-        if (!isUserLoggedIn()) return "redirect:/login";
+    public String createTopic(HttpServletRequest request){
+        if (!isUserLoggedIn(request)) return "redirect:/login";
         return "new-topic";
     }
     @GetMapping("/reply-topic")
-    public String replyTopic(Model model, @RequestParam Long id){
-        if (!isUserLoggedIn()) return "redirect:/login";
+    public String replyTopic(Model model, @RequestParam Long id, HttpServletRequest request){
+        if (!isUserLoggedIn(request)) return "redirect:/login";
         Topic topic = forumService.getTopicByID(id);
         model.addAttribute("title", "RE: " + topic.getTitle());
         model.addAttribute("id", topic.getId());
@@ -90,19 +89,26 @@ public class MainController {
     }
     @PostMapping("/api/create-topic")
     @ResponseBody
-    public ResponseEntity<?> handleCreateTopic(@RequestParam String title,@RequestParam String contentmsg){
-        return ResponseEntity.accepted().body(forumService.createNewTopic(title, contentmsg, getUser()));
+    public ResponseEntity<?> handleCreateTopic(@RequestParam String title,
+                                               @RequestParam String contentmsg,
+                                               HttpServletRequest request){
+        return ResponseEntity.accepted()
+                .body(forumService.createNewTopic(title, contentmsg, getUser(request)));
     }
     @PostMapping("/api/reply-topic")
     @ResponseBody
-    public ResponseEntity<?> handleReplyTopic(@RequestParam String title,@RequestParam String contentmsg, @RequestParam Long idTopic){
-        return ResponseEntity.accepted().body(forumService.replyTopic(title, contentmsg, getUser(), idTopic));
+    public ResponseEntity<?> handleReplyTopic(@RequestParam String title,
+                                              @RequestParam String contentmsg,
+                                              @RequestParam Long idTopic,
+                                              HttpServletRequest request){
+        return ResponseEntity.accepted()
+                .body(forumService.replyTopic(title, contentmsg, getUser(request), idTopic));
     }
 
-    private boolean isUserLoggedIn(){
+    private boolean isUserLoggedIn(HttpServletRequest request){
         return request.getSession(false).getAttribute("user") != null;
     }
-    private User getUser(){
+    private User getUser(HttpServletRequest request){
         return (User) request.getSession(false).getAttribute("user");
     }
 

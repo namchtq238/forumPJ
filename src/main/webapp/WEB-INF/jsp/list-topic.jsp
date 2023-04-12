@@ -14,6 +14,13 @@
           crossorigin="anonymous">
 </head>
 <body>
+<div style="float: right">
+    <form action="${pageContext.request.contextPath}/logout" method="post">
+        <label for="logout">Xin chào ${user.username}</label>
+        <button type="submit" class="btn btn-danger" id="logout">Logout</button>
+    </form>
+</div>
+
 <div class="container">
     <c:set var="category" value="${category}" />
 
